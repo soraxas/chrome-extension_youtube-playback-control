@@ -1,26 +1,26 @@
 body {
-    padding: 10px;
+  padding: 10px;
 }
 
 .checkbox-label {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-    font-size: 0.9em;
-    margin-top: 4px;
+  font-size: 0.9em;
+  margin-top: 4px;
 }
 
 #current-default {
-    margin-left: 5px;
-    color: #666;
+  margin-left: 5px;
+  color: #666;
 }
 
 .checkbox-label-text {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
 #speed-submit {
-    margin-top: 5px;
-    text-align: center;
+  margin-top: 5px;
+  text-align: center;
 }

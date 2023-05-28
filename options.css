@@ -1,14 +1,14 @@
 form {
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-gap: 15px 30px;
-    align-items: center;
-    margin-top: 15px;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 15px 30px;
+  align-items: center;
+  margin-top: 15px;
 }
 
 form button {
-    grid-column: span 2;
-    text-align: center;
-    line-height: 1.5;
-    margin-top: 20px;
+  grid-column: span 2;
+  text-align: center;
+  line-height: 1.5;
+  margin-top: 20px;
 }

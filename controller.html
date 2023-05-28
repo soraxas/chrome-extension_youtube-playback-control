@@ -1,17 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <link rel="stylesheet" href="controller.css"/>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="controller.css" />
+  </head>
+  <body>
+    <input type="number" id="speed-input" min="0" step="0.1" value="1" />
+    <label class="checkbox-label"
+      ><input
+        type="checkbox"
+        class="checkbox-label-text"
+        id="save-default"
+        unchecked />Set as global default <span id="current-default"></span
+    ></label>
+    <label class="checkbox-label"
+      ><input
+        type="checkbox"
+        class="checkbox-label-text"
+        id="save-default-channel"
+        unchecked
+      />Set as default for this channel</label
+    >
+    <button id="speed-submit">Set Speed</button>
 
-    </head>
-    <body>
-        <input type="number" id="speed-input" min=0 step=0.1 value=1>
-        <label class="checkbox-label"><input type="checkbox" class="checkbox-label-text" id="save-default" unchecked/>Set as global default <span id="current-default"></span></label>
-        <label class="checkbox-label"><input type="checkbox" class="checkbox-label-text" id="save-default-channel" unchecked/>Set as default for this channel</label>
-        <button id="speed-submit">Set Speed</button>
-
-        <script src="popup-box.js"></script>
-
-    </body>
+    <script src="popup-box.js"></script>
+  </body>
 </html>
