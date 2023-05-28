@@ -17,6 +17,12 @@ function getChannelInfo() {
     return [channelLink.text, id];
 }
 
+function applySpeed(speed, show_icon) {
+    if (show_icon)
+        browser.runtime.sendMessage({type: 'updateIcon', speed: speed});
+    document.getElementsByTagName('video')[0].playbackRate = speed;
+}
+
 // Applies the default speed to the main video element
 function applyDefaultSpeed(retry_count) {
     retry_count = retry_count || 0;
@@ -30,8 +36,7 @@ function applyDefaultSpeed(retry_count) {
             browser.storage.local.get('defaultSpeed', function(result) {
                 speed = (has_channel_info && channelResult[channelID]) || result.defaultSpeed || 1.0;
                 console.log('Channel ID: ' + channelID + ' ; Applying default speed: ' + speed);
-                browser.runtime.sendMessage({type: 'updateIcon', speed});
-                document.getElementsByTagName('video')[0].playbackRate = speed;
+                applySpeed(speed, has_channel_info);
             })
         });
     }
@@ -43,14 +48,21 @@ function applyDefaultSpeed(retry_count) {
 
 
 applyDefaultSpeed();
+browser.runtime.sendMessage({type: 'updateIcon', initialised: true});
 browser.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message.type === 'applyDefaultSpeed') {
         setTimeout(applyDefaultSpeed, 1500);
     }
 
-    if (message.type === 'getChannelID') {
+    else if (message.type === 'getChannelID') {
         console.log('Channel ID Request', channelID);
         sendResponse(channelID);
+    }
+
+    else if (message.type === 'applySpecificSpeed') {
+        console.log('applySpecificSpeed Request');
+        sendResponse(channelID);
+        applySpeed(message.speed, true);
     }
     console.log('message', message);
 });

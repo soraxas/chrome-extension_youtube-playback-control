@@ -11,30 +11,43 @@ function setSpeed() {
     saveDefault = document.getElementById('save-default').checked;
     saveDefaultChannel = document.getElementById('save-default-channel').checked;
 
-    // Save speed
-    browser.tabs.executeScript({'code': RATE_CODE + " = " + speed});
-    browser.runtime.sendMessage({type: 'updateIcon', speed});
-
-    // Store speed persistently if desired
-    if (saveDefault) {
-        browser.storage.local.set({defaultSpeed: speed}, function() {
-            console.log('Default speed updated to ' + speed);
-            updateDefaultText(speed);
-        });
-    }
-
     // Get current channel ID
-    if (saveDefaultChannel) {
-        browser.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            console.log('tabs', tabs);
-            chrome.tabs.sendMessage(tabs[0].id, {type: 'getChannelID'}, function(channelID) {
+    browser.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) {
+    // browser.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (!tabs[0]) {
+            alert("Can't get the current tab. Try to focus it by clicking");
+            return;
+        }
+        const tab_id = tabs[0].id;
+
+        // Save speed
+        // browser.scripting.executeScript({
+        //     target: {tabId: tab_id},
+        //     func : (_speed) => {
+        //         document.getElementsByTagName('video')[0].playbackRate = _speed;
+        //     },
+        //     args : [ speed ],
+        // });
+        browser.tabs.sendMessage(tab_id, {type: 'applySpecificSpeed', speed: speed});
+        // browser.runtime.sendMessage({type: 'updateIcon', speed});
+
+        // Store speed persistently if desired
+        if (saveDefault) {
+            browser.storage.local.set({defaultSpeed: speed}, function() {
+                console.log('Default speed updated to ' + speed);
+                updateDefaultText(speed);
+            });
+        }
+
+        if (saveDefaultChannel) {
+            chrome.tabs.sendMessage(tab_id, {type: 'getChannelID'}, function(channelID) {
                 console.log('popup channel id', channelID);
                 browser.storage.local.set({[channelID]: speed}, function() {
                     console.log('Default speed for channel ' + channelID + ' updated to ' + speed);
                 });
             });
-        });
-    }
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
@@ -71,10 +84,27 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
 
 ////////////////////////
-    // // Retrieve current speed and set popup's initial value
-    // browser.tabs.executeScript({'code': RATE_CODE}).then(function(result) {
-    //     mainInput.value = result[0];
-    // });
+    // Retrieve current speed and set popup's initial value
+    browser.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) {
+        if (!tabs[0])
+            return;
+
+        const tab_id = tabs[0].id;
+        browser.scripting.executeScript({
+            target: {tabId: tab_id},
+            func : () => {
+                return document.getElementsByTagName('video')[0].playbackRate;
+            }
+        }).then(injectionResults => {
+            for (const {frameId, result} of injectionResults) {
+                // console.log(`Frame ${frameId} result(rate):`, result);
+                if (result)
+                    mainInput.value = result;
+            }
+        });
+
+        // browser.runtime.sendMessage({type: 'updateIcon', speed});
+    });
 
     // Retrieve and display current default speed
     browser.storage.local.get('defaultSpeed', function(result) {

@@ -2,6 +2,24 @@ if (typeof browser === "undefined") {
     var browser = chrome;
 }
 
+chrome.runtime.onInstalled.addListener(function(){
+    chrome.action.disable(); // disable by default!
+
+    const pageUrl = {hostSuffix: '.youtube.com'};
+    const {
+        onPageChanged,
+        PageStateMatcher,
+        ShowAction,
+    } = chrome.declarativeContent;
+
+    onPageChanged.removeRules(undefined, function(){
+        onPageChanged.addRules([{
+            conditions: [new PageStateMatcher({pageUrl})],
+            actions: [new ShowAction()]
+        }]);
+    });
+});
+
 
 // chrome.runtime.onInstalled.addListener(() => {
 //   // Page actions are disabled by default and enabled on select tabs
@@ -13,7 +31,7 @@ if (typeof browser === "undefined") {
 //     let exampleRule = {
 //       conditions: [
 //         new chrome.declarativeContent.PageStateMatcher({
-//           pageUrl: {hostSuffix: '.example.com'},
+//           pageUrl: {hostSuffix: '.youtube.com'},
 //         })
 //       ],
 //       actions: [new chrome.declarativeContent.ShowAction()],
@@ -32,11 +50,15 @@ browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         return;
 
     // const match = tab.url.match(/^https?:\/\/(?:[^@\/\n]+@)?(?:www\.)?([^:\/\n]+)/);
-    const match = tab.url.match(/^https?:\/\/(?:[^@\/\n]+@)?(?:.*[.])?youtube.com/);
-    if (!match)
+    if (!tab.url.match(/^https?:\/\/(?:[^@\/\n]+@)?(?:.*[.])?youtube.com/))
         return;
 
-    if (changeInfo.url && (changeInfo.status === 'complete')) {
+    if (changeInfo.status == 'loading')
+        updateIcon(tab.id, {});
+
+    // if (changeInfo.url && (changeInfo.status == 'complete')) {
+    if (changeInfo.status == 'complete') {
+        console.log(">>complete");
         browser.tabs.sendMessage(tabId, {type: 'applyDefaultSpeed'});
     }
 }
@@ -47,7 +69,14 @@ browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 
 
-function updateIcon(tabId, index) {
+function updateIcon(tabId, message) {
+    if (!message.speed)
+        browser.action.setBadgeText({ text: `...`, tabId: tabId });
+    else {
+
+        browser.action.setBadgeText({ text: `x${message.speed}`, tabId: tabId });
+    }
+    return;
     iconPath = (size) => ('icons/page-action/' + index + '-' + size + '.png');
     browser.pageAction.setTitle({
         title: 'Playback Speed: ' + (index/10).toFixed(1) + '×',
@@ -64,12 +93,12 @@ function updateIcon(tabId, index) {
 
 browser.runtime.onMessage.addListener(function(message, sender) {
     if (message.type === 'updateIcon') {
-        index = Math.max(Math.min(Math.round(message.speed * 10), 99), 0);
+        // update to specific speed
         if (sender.tab) {
-            updateIcon(sender.tab.id, index);
+            updateIcon(sender.tab.id, message);
         } else {
             browser.tabs.query({active:true, currentWindow:true}, function(tabs) {
-                updateIcon(tabs[0].id, index);
+                updateIcon(tabs[0].id, message);
             });
         }
     }

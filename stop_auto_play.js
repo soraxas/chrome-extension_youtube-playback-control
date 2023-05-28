@@ -3,14 +3,12 @@
     // const DEBUG = true;
     const DEBUG = false;
 
-    function console_log(...args) {
+    const console_log = (...args) => {
         if (DEBUG) {
             console.log(...args);
         }
     }
 
-
-	/** @version 4.1.0 **/
 	const document = window.document;
 	const extended = false;
 
