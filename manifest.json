@@ -23,9 +23,11 @@
       ],
       "js": [
         "content-script.js"
-      ]
+      ],
+      "run_at": "document_start"
     }
   ],
+  "web_accessible_resources": ["stop_auto_play.js"],
   "background": {
     "scripts": [
       "background.js"

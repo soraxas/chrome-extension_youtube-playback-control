@@ -11,11 +11,10 @@ function getChannelInfo() {
     if (links.length === 0) {return ['', ''];}
 
     channelLink = links[0];
-    name = channelLink.text;
     idSegments = new URL(channelLink.href).pathname.split('/');
     id = idSegments.pop() || idSegments.pop()
 
-    return [name, id];
+    return [channelLink.text, id];
 }
 
 // Applies the default speed to the main video element
@@ -55,3 +54,17 @@ browser.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
     console.log('message', message);
 });
+
+
+(function inject(document) {
+	'use strict'
+
+	const s = document.createElement('script')
+	s.src = chrome.extension.getURL('stop_auto_play.js')
+	// s.async = true // it's async by default
+	//s.onload = function onload() {
+	//this.parentNode.removeChild(this)
+	//	s = null // GC
+	//}
+	document.documentElement.appendChild(s)
+})(window.document);
